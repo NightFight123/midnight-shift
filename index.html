@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Midnight Shift</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      color: #e0e0ff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: rgba(0,0,0,0.4);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+    }
+    h1 { font-size: 1.8rem; margin-bottom: 10px; color: #a0c4ff; }
+    #clock {
+      font-size: 4rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin: 20px 0;
+      text-shadow: 0 0 20px #64b5f6;
+    }
+    #date { font-size: 1.3rem; margin-bottom: 20px; opacity: 0.8; }
+    .midnight-msg {
+      display: none;
+      background: #ffd54f;
+      color: #1a237e;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-weight: bold;
+      margin: 15px 0;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    textarea {
+      width: 100%;
+      height: 120px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid #64b5f6;
+      border-radius: 10px;
+      color: #fff;
+      padding: 12px;
+      font-size: 1rem;
+      resize: vertical;
+      margin: 15px 0;
+    }
+    button {
+      background: #5c6bc0;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover { background: #3949ab; }
+    .footer { margin-top: 20px; font-size: 0.85rem; opacity: 0.6; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌙 Midnight Shift</h1>
+    <div id="clock">00:00:00</div>
+    <div id="date">Loading...</div>
+    <div id="midnightMsg" class="midnight-msg">It's Midnight! Time for a new shift 🌅</div>
+    
+    <label for="notes" style="display:block; margin-bottom:5px;">Shift Notes / Reminders:</label>
+    <textarea id="notes" placeholder="Write your shift schedule, reminders, or notes here... They save automatically!"></textarea>
+    
+    <div>
+      <button onclick="saveNotes()">Save Notes</button>
+      <button onclick="clearNotes()">Clear</button>
+    </div>
+    
+    <div class="footer">
+      Makeshift web app for Chromebook • Data stays in your browser<br>
+      Hosted on GitHub Pages
+    </div>
+  </div>
+
+  <script>
+    const clockEl = document.getElementById('clock');
+    const dateEl = document.getElementById('date');
+    const midnightMsg = document.getElementById('midnightMsg');
+    const notesEl = document.getElementById('notes');
+
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      clockEl.textContent = `${hours}:${minutes}:${seconds}`;
+      
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      dateEl.textContent = now.toLocaleDateString(undefined, options);
+      
+      // Special midnight message
+      if (hours === '00' && minutes === '00') {
+        midnightMsg.style.display = 'block';
+      } else {
+        midnightMsg.style.display = 'none';
+      }
+    }
+
+    function loadNotes() {
+      const saved = localStorage.getItem('midnightShiftNotes');
+      if (saved) notesEl.value = saved;
+    }
+
+    function saveNotes() {
+      localStorage.setItem('midnightShiftNotes', notesEl.value);
+      alert('Notes saved!');
+    }
+
+    function clearNotes() {
+      if (confirm('Clear all notes?')) {
+        notesEl.value = '';
+        localStorage.removeItem('midnightShiftNotes');
+      }
+    }
+
+    // Auto-save on typing
+    notesEl.addEventListener('input', () => {
+      localStorage.setItem('midnightShiftNotes', notesEl.value);
+    });
+
+    loadNotes();
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>
